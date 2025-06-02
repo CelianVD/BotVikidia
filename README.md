@@ -7,4 +7,5 @@ Code du bot de Luffy et Célian pour Vikidia
 
 ## En cours de dev
 *  surveiller les modifs récentes avec les modèles qu'on va créer/ continuer pour certains
-*homonym-portail.py : pour enlever les portails des pages d'homonymies
+* homonym-portail.py : pour enlever les portails des pages d'homonymies
+* pages-vandalisées.py :Faire un rapport des pages les plus vandalisées pour peut-être demander la protection(mais pas automatiquement car on ne peut pas être sûr sans vérif humaine), comme critères pour que ce soit classé vandalisme:balise révoqué, par un IP/Utilisateur bloqué qui c inscrit juste pour vandaliser(que des modifs révoquées, pages créées supprimées)
