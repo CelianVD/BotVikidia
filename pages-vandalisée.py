@@ -1,0 +1,1 @@
+#Script pour Faire un rapport des pages les plus vandalisées pour peut-être demander la protection(mais pas automatiquement car on ne peut pas être sûr sans vérif humaine), comme critères pour que ce soit classé vandalisme:balise révoqué, par un IP/Utilisateur bloqué qui c inscrit juste pour vandaliser(que des modifs révoquées, pages créées supprimées)
