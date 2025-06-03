@@ -6,7 +6,7 @@ import mwparserfromhell
 from datetime import datetime, timedelta
 
 LOG_FILE = "ebauche_scan_once_log.txt"
-WIKI_LOG_PAGE = "Utilisateur:LuffyBot/Logs/2025"
+WIKI_LOG_PAGE = "Utilisateur:BotCélian/Logs/2025"
 
 def log(message):
     timestamp = datetime.utcnow().strftime("[%Y-%m-%d %H:%M:%S UTC] ")
