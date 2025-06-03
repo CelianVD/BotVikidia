@@ -3,6 +3,6 @@ mylang = 'fr'
 
 usernames = {
     'vikidia': {
-        'fr': 'nom du bot'
+        'fr': 'LuffianBot'
     }
 }
