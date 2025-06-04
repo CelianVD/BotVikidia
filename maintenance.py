@@ -3,15 +3,14 @@
 import pywikibot
 import re
 
-# Désactiver les vérifications internes du parseur
+# sinon ça marche pas (je crois)
 pywikibot.config.ignore_bot_templates = True
 pywikibot.config.enable_parser = False
 
-# Connexion au site Vikidia FR
 site = pywikibot.Site("fr", "vikidia")
 
 def detect_problems(text):
-    """Analyse le texte d'une page pour détecter les problèmes de structure."""
+    """Analyse du texte"""
     problems = []
 
     # Pas d’introduction (commence directement par une section)
@@ -69,8 +68,8 @@ def add_maintenance_tag(page, problems):
 new_pages = site.recentchanges(
     reverse=True,
     changetype="new",
-    namespaces=[0],  # espace de noms principal (articles)
-    total=50  # par exemple 50 dernières pages créées
+    namespaces=[0], 
+    total=50
 )
 
 # Parcours des pages
