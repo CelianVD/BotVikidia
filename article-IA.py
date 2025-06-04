@@ -1,1 +1,0 @@
-# Script pour detecter si les pages sont faites par IA
