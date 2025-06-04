@@ -1,9 +1,9 @@
 import pywikibot
 import re
-import mwparserfromhell
 from datetime import datetime, timedelta
+from pywikibot.data.api import Request
 
-LOG_FILE = "ebauche_recentes.txt"
+LOG_FILE = "ebauche_log.txt"
 
 def log(message):
     timestamp = datetime.utcnow().strftime("[%Y-%m-%d %H:%M:%S UTC] ")
@@ -12,20 +12,10 @@ def log(message):
     print(timestamp + message)
 
 def extract_portails(text):
-    try:
-        wikicode = mwparserfromhell.parse(text)
-        for template in wikicode.filter_templates():
-            if template.name.strip().lower() == "portail":
-                return [param.value.strip().lower() for param in template.params if param.value.strip()]
-    except Exception:
-        raise ValueError("Texte illisible ou mal formé")
-    return []
-
-def has_ebauche(text):
-    return re.search(r'\{\{\s*ébauche(?:\s*[\|\s][^}]*)?\}\}', text, re.IGNORECASE)
-
-def has_travaux(text):
-    return re.search(r'\{\{\s*(en\s+)?travaux(?:\s*\|[^}]+)?\s*\}\}', text, re.IGNORECASE)
+    match = re.search(r'\{\{\s*[Pp]ortail\s*\|([^}]+)\}\}', text)
+    if not match:
+        return []
+    return [param.strip().lower() for param in match.group(1).split('|')]
 
 def normalize_ebauche_portails(site, portails):
     valid_portails = []
@@ -38,72 +28,88 @@ def normalize_ebauche_portails(site, portails):
             valid_portails.append(p.capitalize())
     return valid_portails
 
+def has_ebauche(text):
+    return re.search(r'\{\{\s*ébauche\s*(\|[^}]*)?\}\}', text, re.IGNORECASE)
+
+def has_travaux(text):
+    return re.search(r'\{\{\s*(en\s+)?travaux(?:\s*\|[^}]+)?\s*\}\}', text, re.IGNORECASE)
+
 def add_ebauche(text, portails):
     if not portails:
         return text
-    ebauche_template = "{{ébauche|" + "|".join(portails) + "}}\n"
+    ebauche_template = '{{ébauche|' + '|'.join(portails) + '}}\n'
     return ebauche_template + text
 
 def is_too_short(text, min_words=200):
     return len(text.split()) < min_words
 
+def get_new_pages(site):
+    # Récupère les pages créées dans les dernières 24 heures
+    now = datetime.utcnow()
+    yesterday = now - timedelta(days=1)
+
+    log("Récupération des nouvelles pages créées entre "
+        f"{yesterday.isoformat()} et {now.isoformat()}")
+
+    params = {
+        "action": "query",
+        "list": "recentchanges",
+        "rcnamespace": 0,
+        "rcshow": "new",
+        "rclimit": "max",
+        "rcstart": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "rcend": yesterday.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "rcprop": "title"
+    }
+
+    request = Request(site=site, parameters=params)
+    data = request.submit()
+    titles = [change["title"] for change in data["query"]["recentchanges"]]
+    return [pywikibot.Page(site, title) for title in titles]
+
 def main():
     site = pywikibot.Site("fr", "vikidia")
     site.login()
 
-    since = datetime.utcnow() - timedelta(days=1)
-    recent_newpages = site.recentchanges(start=since, changetype="new", namespaces=[0], reverse=True)
+    pages = get_new_pages(site)
+    log(f"{len(pages)} nouvelles pages détectées.")
 
-    for change in recent_newpages:
-        title = change['title']
-        page = pywikibot.Page(site, title)
-
-        if page.isRedirectPage():
-            continue
-
+    for page in pages:
         try:
+            if page.isRedirectPage():
+                log(f"{page.title()} est une redirection. Ignorée.")
+                continue
+
             text = page.text
-        except Exception as e:
-            log(f"{page.title()} ignorée : erreur de lecture → {e}")
-            continue
 
-        if not is_too_short(text):
-            continue
+            if not is_too_short(text):
+                log(f"{page.title()} n’est pas trop courte.")
+                continue
 
-        if has_ebauche(text):
-            log(f"{page.title()} ignorée : ébauche déjà présente")
-            continue
+            if has_ebauche(text):
+                log(f"{page.title()} contient déjà une ébauche.")
+                continue
+            if has_travaux(text):
+                log(f"{page.title()} ignorée : modèle {{Travaux}} ou {{En travaux}} présent")
+                continue
 
-        if has_travaux(text):
-            log(f"{page.title()} ignorée :  la page est en travaux")
-            continue
-
-
-        try:
             portails = extract_portails(text)
-        except ValueError:
-            log(f"{page.title()} ignorée : contenu illisible ou anomalie de parsing")
-            continue
+            if not portails:
+                log(f"{page.title()} : aucun portail trouvé.")
+                continue
 
-        if not portails:
-            log(f"{page.title()} ignorée : aucun portail détecté (à ajouter manuellement)")
-            continue
+            portails = normalize_ebauche_portails(site, portails)
+            if not portails:
+                log(f"{page.title()} ignorée : aucun modèle ébauche valide trouvé")
+                continue
 
-        portails = normalize_ebauche_portails(site, portails)
-        if not portails:
-            log(f"{page.title()} ignorée : aucun modèle ébauche valide trouvé")
-            continue
-        new_text = add_ebauche(text, portails)
-
-
-        try:
+            new_text = add_ebauche(text, portails)
             page.text = new_text
             page.save(summary="Ajout automatique du modèle ébauche")
-            log(f"Ajout de l’ébauche sur la page {page.title()}")
-            #break  # Ne modifie qu’une page
+            log(f"Ajout de l’ébauche sur : {page.title()}")
+
         except Exception as e:
-            log(f"Erreur lors de la sauvegarde de {page.title()} : {e}")
-            continue
+            log(f"Erreur avec {page.title()} : {e}")
 
     log("Scan terminé.\n")
 
