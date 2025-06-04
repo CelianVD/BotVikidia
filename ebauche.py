@@ -1,4 +1,4 @@
-# Script parourant les pages des dernières 24 heures et ajoute le bandeau ébauche si besoin, par Célian et moi.Utilisé par BotCélian et LuffyBot
+# Script parourant les pages créées dans les dernières 24 heures et ajoute le bandeau ébauche si besoin, par Célian et moi.Utilisé par BotCélian et LuffyBot
 
 import pywikibot
 import re
