@@ -1,1 +1,2 @@
-#le script ne marche pas 
+# @Luffy va bientot mettre le script...
+# le script sert à supprimer les portails des pages d'homonymies de Vikidia
