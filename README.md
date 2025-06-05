@@ -10,4 +10,3 @@ Code du bot de Luffy et Célian pour Vikidia
 * hmonym-portail.py : supprime les portails des pages d'homonymies
 ## En cours de dev
 *  surveiller les modifs récentes avec les modèles qu'on va créer/ continuer pour certains
-* article-IA.py : en attente d'importation de Luffy...
