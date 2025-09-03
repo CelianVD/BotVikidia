@@ -7,7 +7,7 @@ Code du bot de Luffy et Célian pour Vikidia
 * ebauche_celian.py : script d'ajout d'ebaches version Célian.
 * ebauche-recentes.py : Ebauche.py, mais avec les pages récemment modifiées
 * homonym-portail.py : supprime les portails des pages d'homonymies
-* maintenance.py
+* maintenance.py : ajout de maintenance
 * rapport.py : faire un raaport des pages les plus vandalisé de Vikidia
 * stop.py : Script permettant d'arreter le bot en cas de problemme en envoyant un message sur sa PDD
 ## En cours de dev
