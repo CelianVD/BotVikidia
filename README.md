@@ -14,3 +14,4 @@ Code du bot de Luffy et Célian pour Vikidia
 *  surveiller les modifs récentes avec les modèles qu'on va créer/ continuer pour certains
 ## Autres pages utiles
 * user_config.py : config pour démarrer le bot
+/ https://botcelian.vercel.app/accueil.html
